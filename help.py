@@ -161,6 +161,8 @@ def Launcher():
               break
             if ev2.startswith('scp_'):
               idx = int(ev2.split('_')[1])
+              win2['-CALL-'](value=''.join('报修电话：1307'))
+              scope = scopes[idx]
 
             if ev2 == '提交':
               ask = vals2['-ASK-'].strip()
@@ -193,11 +195,11 @@ def Launcher():
 
                   # post
 
-                  r = requests.post(host + '/api/v1.0/tickets', headers=headers, json=payload)
-                  result = r.json()
+                  print(payload)
+                  r = requests.post(host + '/api/v1.0/tickets', headers=headers, json=payload).json()
 
-                  if (r['code'] == 200):
-                    Ticket.create(tid=r['_id'], body=ask, at=r['at'])
+                  if (r['code']==0):
+                    Ticket.create(tid=r['data']['ticket_id'], body=ask, at=r['data']['code'])
 
                     sg.popup_auto_close('报修成功!')
 
@@ -207,6 +209,7 @@ def Launcher():
                   win2.close()
                   win2_active = False
                 except Exception as e:
+                  print(e)
                   sg.popup('服务不可用，请稍后再试！') 
         
       except Exception as e:
