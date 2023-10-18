@@ -15,6 +15,7 @@ import math
 import time
 import requests
 import hashlib
+from netifaces import interfaces, ifaddresses, AF_INET
 
 db = SqliteDatabase('clx.db')
 class Ticket(Model):
@@ -147,8 +148,6 @@ def Launcher():
                     [sg.In(key='-ASK-')],
                     [sg.Text('联系人姓名', text_color='white')], 
                     [sg.In(contact, key='-CONTACT-')],
-                    [sg.Text('联系人手机', text_color='white')], 
-                    [sg.In(cell, key='-CELL-')],
                     [sg.Checkbox('自动截屏', key='-SCRN-', default=True)],
                     [sg.Button('提交', bind_return_key=True)]]
           layout2 = layoutScopes + layout2
@@ -175,11 +174,25 @@ def Launcher():
                 sg.popup('问题不需太长')
               else:          
                 contact = vals2['-CONTACT-'].strip()
-                cell = vals2['-CELL-'].strip()
                 if  vals2['-SCRN-'] is False:
                   base64_text = ''
 
-                payload = {'img': base64_text, 'scope': scope, 'ask': ask, 'mac': get_mac(), 'contact': contact, 'cell': cell, 'workflow_id':1, 'suggestion':'请协助提供更多信息', 'transition_id': 1}
+                ip = [];
+                for ifaceName in interfaces():
+                  addresses = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr': 'No IP addr'}])]
+
+                  print(' '.join(addresses))
+
+                  for address in addresses:
+                    if address.startswith("192.168"):
+                      ip.append(address);
+
+
+
+
+
+
+                payload = {'ip': ' '.join(ip), 'img': base64_text, 'scope': scope, 'ask': ask, 'mac': get_mac(), 'contact': contact, 'workflow_id':1, 'suggestion':'请协助提供更多信息', 'transition_id': 1}
 
                 try:
                   timestamp = str(time.time())[:10]
