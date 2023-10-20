@@ -45,16 +45,6 @@ except Exception as e:
   sg.popup('配置文件有误！')
   exit(1)
 
-try:
-  svmem = psutil.virtual_memory()
-  mem = round(svmem.total/(1024*1024*1024))
-  cpus = psutil.cpu_count(logical=False)
-
-  payload = {'mac': get_mac(), 'sysrel': platform.system()+platform.release(),'mem': mem, 'cpus': cpus }
-  # r = requests.post(host+'/api/connect', data = payload, timeout=1.5).json()
-except Exception as e:
-  pass
-
 def Launcher():
   sg.theme('DarkAmber')
   contact = ''
@@ -90,7 +80,7 @@ def Launcher():
                       .count())
 
     if to_be_confirmed > 0:
-      if (counter % 2 == 0):    
+      if (counter % 2 == 0):
         window['-HELP-'].update(button_color=(sg.theme_text_color(),sg.theme_element_background_color()))
       else:
         window['-HELP-'].update(button_color=('black','orange'))
@@ -177,22 +167,10 @@ def Launcher():
                 if  vals2['-SCRN-'] is False:
                   base64_text = ''
 
-                ip = [];
-                for ifaceName in interfaces():
-                  addresses = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr': 'No IP addr'}])]
+                ip = extractIp()
 
-                  print(' '.join(addresses))
-
-                  for address in addresses:
-                    if address.startswith("192.168"):
-                      ip.append(address);
-
-
-
-
-
-
-                payload = {'ip': ' '.join(ip), 'img': base64_text, 'scope': scope, 'ask': ask, 'mac': get_mac(), 'contact': contact, 'workflow_id':1, 'suggestion':'请协助提供更多信息', 'transition_id': 1}
+                # payload = {'ip': ' '.join(ip), 'img': base64_text, 'scope': scope, 'ask': ask, 'mac': get_mac(), 'contact': contact, 'workflow_id':1, 'suggestion':'请协助提供更多信息', 'transition_id': 1}
+                payload = {'ip': ip, 'scope': scope, 'ask': ask, 'mac': get_mac(), 'contact': contact, 'workflow_id':1, 'suggestion':'请协助提供更多信息', 'transition_id': 1}
 
                 try:
                   timestamp = str(time.time())[:10]
@@ -231,6 +209,21 @@ def Launcher():
 
          
   window.close()
+
+
+def extractIp():
+  ip = [];
+  for ifaceName in interfaces():
+    addresses = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr': 'No IP addr'}])]
+
+    print(' '.join(addresses))
+
+    for address in addresses:
+      if address.startswith("192.168"):
+        ip.append(address);
+
+  return ip[0]
+
 
 if __name__ == '__main__':
   Launcher()
