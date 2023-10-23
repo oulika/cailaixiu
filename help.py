@@ -124,14 +124,14 @@ def Launcher():
               break
 
         else:
-          img = pyautogui.screenshot()
-          img_bytes = io.BytesIO()
-          try:
-            img.save(img_bytes, format='PNG')
-            base64_data = codecs.encode(img_bytes.getvalue(), 'base64')
-            base64_text = codecs.decode(base64_data, 'ascii')
-          except Exception as e:
-            base64_text = ''
+          # img = pyautogui.screenshot()
+          # img_bytes = io.BytesIO()
+          # try:
+          #   img.save(img_bytes, format='PNG')
+          #   base64_data = codecs.encode(img_bytes.getvalue(), 'base64')
+          #   base64_text = codecs.decode(base64_data, 'ascii')
+          # except Exception as e:
+          #   base64_text = ''
           
           layout2= [[sg.Text('报修电话...', auto_size_text=False, justification='center', text_color='black', background_color='white', key='-CALL-')],
                     [sg.Text('问题简述（电话通不通，都麻烦填一下）')],
@@ -170,7 +170,7 @@ def Launcher():
                 ip = extractIp()
 
                 # payload = {'ip': ' '.join(ip), 'img': base64_text, 'scope': scope, 'ask': ask, 'mac': get_mac(), 'contact': contact, 'workflow_id':1, 'suggestion':'请协助提供更多信息', 'transition_id': 1}
-                payload = {'ip': ip, 'scope': scope, 'ask': ask, 'mac': get_mac(), 'contact': contact, 'workflow_id':1, 'suggestion':'请协助提供更多信息', 'transition_id': 1}
+                payload = {'title': (ip +'-' + contact + '-' + ask), 'ip': ip, 'scope': scope, 'ask': ask, 'mac': get_mac(), 'contact': contact, 'workflow_id':1, 'suggestion':'请协助提供更多信息', 'transition_id': 3}
 
                 try:
                   timestamp = str(time.time())[:10]
@@ -190,7 +190,7 @@ def Launcher():
                   r = requests.post(host + '/api/v1.0/tickets', headers=headers, json=payload).json()
 
                   if (r['code']==0):
-                    Ticket.create(tid=r['data']['ticket_id'], body=ask, at=r['data']['code'])
+                    Ticket.create(tid=r['data']['ticket_id'], body=ask, at=r['data']['ticket_id'])
 
                     sg.popup_auto_close('报修成功!')
 
